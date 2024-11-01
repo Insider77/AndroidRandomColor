@@ -1,17 +1,18 @@
 buildscript {
     repositories {
-        google()  // Added this
-        mavenCentral()  // Replaced jcenter
+        maven { url "https://maven.google.com" }  // Instead of google()
+        maven { url "https://repo1.maven.org/maven2" }  // Instead of mavenCentral()
+        jcenter()  // Keep this for older dependencies
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'  // Updated version
-        // Removed old plugins
+        classpath 'com.android.tools.build:gradle:1.0.1'  // Keep your original version
     }
 }
 
 allprojects {
     repositories {
-        google()  // Added this
-        mavenCentral()  // Replaced jcenter
+        maven { url "https://maven.google.com" }  // Instead of google()
+        maven { url "https://repo1.maven.org/maven2" }  // Instead of mavenCentral()
+        jcenter()  // Keep this for older dependencies
     }
 }
