@@ -1,19 +1,19 @@
-apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-
-version = "1.0.0"
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
 
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
-
+    
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 21
         versionCode 1
-        versionName version
+        versionName "1.0.0"
     }
+    
     buildTypes {
         release {
             minifyEnabled false
@@ -23,72 +23,40 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-def siteUrl = 'https://github.com/lzyzsd/AndroidRandomColor'      // 项目的主页
-def gitUrl = 'https://github.com/lzyzsd/AndroidRandomColor.git'   // Git仓库的url
-group = "com.github.lzyzsd.randomcolor"                                        // Maven Group ID for the artifact，一般填你唯一的包名
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                // Add your description here
-                name 'Android Random Color Generator' 	//项目描述
-                url siteUrl
-                // Set your license
-                licenses {
-                    license {
-                        name 'MIT'
-                        url 'http://opensource.org/licenses/MIT'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'lzyzsd'		//填写的一些基本信息
-                        name 'Bruce Lee'
-                        email 'bruceinpeking@gmail.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                
+                groupId = 'com.github.Insider77'
+                artifactId = 'AndroidRandomColor'
+                version = '1.0.0'
             }
         }
     }
 }
+
+// Optional: Keep source and javadoc tasks if you want them
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+    archiveClassifier.set('sources')
 }
+
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
+
 artifacts {
     archives javadocJar
     archives sourcesJar
-}
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = "AndroidRandomColor"	//发布到JCenter上的项目名字
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["MIT"]
-        publish = true
-    }
 }
