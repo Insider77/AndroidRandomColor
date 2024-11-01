@@ -1,7 +1,5 @@
-plugins {
-    id 'com.android.library'
-    id 'maven-publish'
-}
+apply plugin: 'com.android.library'
+apply plugin: 'maven'  // Use older maven plugin instead of maven-publish
 
 android {
     compileSdkVersion 21
@@ -23,40 +21,47 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(dir: 'libs', include: ['*.jar'])  // Keep 'compile' for older Gradle
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                
-                groupId = 'com.github.Insider77'
-                artifactId = 'AndroidRandomColor'
-                version = '1.0.0'
-            }
-        }
-    }
-}
+// Configure the library
+group = 'com.github.Insider77'
+version = '1.0.0'
 
-// Optional: Keep source and javadoc tasks if you want them
+// Create jar of java sources
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    archiveClassifier.set('sources')
+    classifier = 'sources'
 }
 
+// Create jar of javadocs
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier.set('javadoc')
+    classifier = 'javadoc'
     from javadoc.destinationDir
 }
 
+// Add these jars to artifacts
 artifacts {
-    archives javadocJar
     archives sourcesJar
+    archives javadocJar
+}
+
+// Required for JitPack
+uploadArchives {
+    repositories {
+        mavenInstaller {
+            pom {
+                project {
+                    packaging 'aar'
+                    groupId 'com.github.Insider77'
+                    artifactId 'AndroidRandomColor'
+                }
+            }
+        }
+    }
 }
