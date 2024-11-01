@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven'  // Use older maven plugin instead of maven-publish
+apply plugin: 'maven'
 
 android {
     compileSdkVersion 21
@@ -18,23 +18,36 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    // Add this to ensure Java files are properly compiled
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/main/java']
+            }
+        }
+    }
+
+    // Add this to fix potential Java 8 compatibility issues
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])  // Keep 'compile' for older Gradle
+    compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
 // Configure the library
 group = 'com.github.Insider77'
-version = '1.0.0'
+version = '1.0.2'
 
-// Create jar of java sources
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
 }
 
-// Create jar of javadocs
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
@@ -45,23 +58,18 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-// Add these jars to artifacts
 artifacts {
     archives sourcesJar
     archives javadocJar
 }
 
-// Required for JitPack
 uploadArchives {
     repositories {
-        mavenInstaller {
-            pom {
-                project {
-                    packaging 'aar'
-                    groupId 'com.github.Insider77'
-                    artifactId 'AndroidRandomColor'
-                }
-            }
+        mavenDeployer {
+            repository(url: "file://${buildDir}/repo")
+            pom.groupId = 'com.github.Insider77'
+            pom.artifactId = 'AndroidRandomColor'
+            pom.version = '1.0.2'
         }
     }
 }
